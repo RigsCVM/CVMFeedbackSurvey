@@ -38,7 +38,7 @@
     		border-radius: 5px;
     		font-size: 1rem;
     		resize: none;
-    		box-sizing: border-box; /* Ensures padding and border are included in the width */
+    		box-sizing: border-box;
         }
         .dropdown {
             margin-bottom: 15px;
@@ -146,15 +146,12 @@
         }
 
         function selectEmotion(emotion) {
-            // Remove 'selected' class from all emojis
             const emojis = document.querySelectorAll('.emoticon');
             emojis.forEach(emoji => emoji.classList.remove('selected'));
 
-            // Add 'selected' class to clicked emoji
             const selectedEmoji = document.getElementById(emotion.toLowerCase());
             selectedEmoji.classList.add('selected');
 
-            // Set selected emotion
             selectedEmotion = emotion;
         }
 
@@ -174,13 +171,15 @@
             document.getElementById('feedbackInput').value = feedback || 'No feedback provided';
             document.getElementById('moodInput').value = selectedEmotion;
 
-            // Show loading message
+            const submitButton = document.querySelector('button');
+            submitButton.disabled = true;
+
             document.querySelector('.loading').style.display = 'block';
 
             const form = document.getElementById('feedbackForm');
             const formData = new FormData(form);
 
-            fetch('https://script.google.com/macros/s/AKfycbxISVjjYhsqEgxVWvN2caoSIQ-Cw3ddNsy8B8BOV7RwrEvvY8yj-cEpDigYDY1IMMZpow/exec', { // Replace with your Apps Script URL
+            fetch('https://script.google.com/macros/s/AKfycbxISVjjYhsqEgxVWvN2caoSIQ-Cw3ddNsy8B8BOV7RwrEvvY8yj-cEpDigYDY1IMMZpow/exec', {
                 method: 'POST',
                 body: formData
             })
@@ -188,18 +187,14 @@
                 if (response.ok) {
                     document.querySelector('.loading').style.display = 'none';
                     document.querySelector('.success').style.display = 'block';
+
                     setTimeout(() => {
                         document.querySelector('.success').style.display = 'none';
                     }, 3000);
 
-                    // Reset the feedback text area
                     document.getElementById('feedback').value = '';
-
-                    // Deselect all emojis
                     const emojis = document.querySelectorAll('.emoticon');
                     emojis.forEach(emoji => emoji.classList.remove('selected'));
-
-                    // Reset selectedEmotion
                     selectedEmotion = '';
                 } else {
                     alert('Error submitting your feedback. Please try again.');
@@ -207,11 +202,13 @@
             })
             .catch(error => {
                 alert('Error: ' + error.message);
+            })
+            .finally(() => {
                 document.querySelector('.loading').style.display = 'none';
+                submitButton.disabled = false;
             });
         }
 
-        // Load saved branch selection on page load
         window.onload = loadBranchSelection;
     </script>
 </body>
